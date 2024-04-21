@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ModeToggle } from "@/components/ModeToggle";
 import Header from "@/components/Header";
+import { Toaster } from "@/components/ui/toaster"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -38,8 +39,9 @@ export default function RootLayout({
           <Header />
           <div className="container sm:mx-auto">
             {children}
+
           </div>
-          
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

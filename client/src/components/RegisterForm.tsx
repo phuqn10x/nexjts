@@ -14,20 +14,27 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-const formSchema = z.object({
-  name: z.string().min(2).max(256),
-  email: z.string().email(),
-  password: z.string().min(6).max(100),
-  comfirmPassword: z.string().min(6).max(100)
-}).strict().superRefine(({ comfirmPassword, password }, ctx) => {
-  if(comfirmPassword !== password) {
-    ctx.addIssue(
-      {code: 'custom',
-       message: 'Mật khẩu không khớp',
-        path: ['confirmPassword']
-      })
-  }
-})
+import { log } from "console"
+import envConfig from "@/config"
+import { toast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
+const formSchema = z
+  .object({
+    name: z.string().min(2).max(256),
+    email: z.string().email(),
+    password: z.string().min(6).max(100),
+    confirmPassword: z.string().min(6).max(100),
+  })
+  .strict()
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Mật khẩu không khớp",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
 
 export function RegisterForm() {
@@ -38,17 +45,43 @@ export function RegisterForm() {
       name: "",
       email: "",
       password: "",
-      comfirmPassword: "",
+      confirmPassword: "",
     },
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
-  }
-
+    const result = await fetch(
+      `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`,
+      {
+        method: "POST",
+        body: JSON.stringify(values),
+        headers: {
+          "Content-type": "application/json",
+        },
+      }
+    ).then(async (res) => {
+      const payload = await res.json()
+      const data = {
+        status : res.status,
+        payload
+      }
+      if (res.ok) {
+        toast({
+          description: data.payload.message,
+        })
+      } else {
+        toast({
+          variant: "destructive",
+          title: data.payload.message,
+          description: data.payload.message,
+        })
+      }
+      
+    });
+   }
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -57,9 +90,9 @@ export function RegisterForm() {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your Name</FormLabel>
+              <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="ex: Trong Phu, Ryan ...etc" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -70,9 +103,9 @@ export function RegisterForm() {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your Email</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" type="email" {...field} />
+                <Input placeholder="ex: phuqn10x@gmail.com ...etc" type="email" {...field} />
               </FormControl>
              
               <FormMessage />
@@ -84,9 +117,9 @@ export function RegisterForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Your password</FormLabel>
+              <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" type="password" {...field} />
+                <Input placeholder="Create your password" type="password" {...field} />
               </FormControl>
               
               <FormMessage />
@@ -95,19 +128,19 @@ export function RegisterForm() {
         />
         <FormField
           control={form.control}
-          name="comfirmPassword"
+          name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Comfirm Password</FormLabel>
+              <FormLabel>Confirm Password</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" type="password" {...field} />
+                <Input placeholder="Confirm your password" type="password" {...field} />
               </FormControl>
              
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full">Login</Button>
       </form>
     </Form>
   )

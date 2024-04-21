@@ -7,7 +7,11 @@ export default function Login() {
   return (
     <div>
       {/* dùng Component Link để chuyển hướng */}
-      <LoginForm />
+      <h1 className='text-xl font-semibold text-center'>Login</h1>
+     
+        <LoginForm />
+     
+      
     </div>
   )
 }

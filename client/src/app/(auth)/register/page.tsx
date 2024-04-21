@@ -4,7 +4,10 @@ import React from 'react'
 export default function register() {
   return (
     <div>
-      <RegisterForm />
+      <h1 className="text-xl font-semibold text-center">Sign Up</h1>
+     
+        <RegisterForm />
+
     </div>
-  )
+  );
 }

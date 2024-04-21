@@ -19,7 +19,7 @@ export default function Navbar() {
           <NavigationMenuItem>
             <Link href="/register" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                Register
+                Create New Account
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

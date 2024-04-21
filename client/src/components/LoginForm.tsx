@@ -14,13 +14,11 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { toast } from "@/components/ui/use-toast"
+import envConfig from "@/config"
 const formSchema = z.object({
-  username: z.string().min(2, {
-    message: "Username must be at least 2 characters.",
-  }),
-  password: z.string().min(2, {
-    message: "Password must be at least 2 characters.",
-  }),
+  email: z.string().email(),
+  password: z.string().min(6).max(100),
 })
 
 export function LoginForm() {
@@ -28,33 +26,75 @@ export function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values)
-  }
+
+    try{
+      const result = await fetch(
+        `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`,
+        {
+          method: "POST",
+          body: JSON.stringify(values),
+          headers: {
+            "Content-type": "application/json",
+          },
+        }
+      ).then(async (res) => {
+        const payload = await res.json()
+        const data = {
+          status : res.status,
+          payload
+        }
+        if (!res.ok) {
+          throw data
+        } 
+        return data;
+        
+      })
+      toast({
+       
+        title: result.payload.message,
+        description: result.payload.message,
+      });
+    }catch(error: any){
+      const errors = error.payload.errors as {
+          field: string
+          message: string
+
+      }[]
+      const status = error.status as number
+      if(status === 422){
+        errors.forEach((error)=>{
+          form.setError(error.field as 'email' | 'password', {
+            type: 'server',
+            message: error.message
+          })
+        })
+      }
+    }
+    
+   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 ">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Username</FormLabel>
+              <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="Your Email, ex: phuqn10x@gmail.com ...etc" type="email" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              
               <FormMessage />
             </FormItem>
             
@@ -67,18 +107,16 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="shadcn" {...field} />
+                <Input placeholder="Your Password" type="password" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your password.
-              </FormDescription>
+             
               <FormMessage />
             </FormItem>
             
             
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="w-full">Login</Button>
       </form>
     </Form>
   )
