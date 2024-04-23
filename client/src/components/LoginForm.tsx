@@ -16,6 +16,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import envConfig from "@/config"
+import { useAppContext } from "@/app/AppProvider"
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6).max(100),
@@ -23,6 +24,7 @@ const formSchema = z.object({
 
 export function LoginForm() {
   // 1. Define your form.
+  const {setSessionToken} = useAppContext()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -35,7 +37,7 @@ export function LoginForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-
+    
     try{
       const result = await fetch(
         `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`,
@@ -59,10 +61,28 @@ export function LoginForm() {
         
       })
       toast({
-       
         title: result.payload.message,
         description: result.payload.message,
       });
+      const resultFromNextServer = await fetch('/api/auth', {
+        method: 'POST',
+        body: JSON.stringify(result),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(async (res) => {
+        const payload = await res.json()
+        const data = {
+          status : res.status,
+          payload
+        }
+        if (!res.ok) {
+          throw data
+        } 
+        return data;
+        
+      })
+      setSessionToken(resultFromNextServer.payload.data.token)
     }catch(error: any){
       const errors = error.payload.errors as {
           field: string
@@ -92,7 +112,7 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="Your Email, ex: phuqn10x@gmail.com ...etc" type="email" {...field} />
+                <Input placeholder="ex: phuqn10x@gmail.com ...etc" type="email" {...field} />
               </FormControl>
               
               <FormMessage />

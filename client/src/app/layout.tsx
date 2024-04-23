@@ -6,6 +6,8 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ModeToggle } from "@/components/ModeToggle";
 import Header from "@/components/Header";
 import { Toaster } from "@/components/ui/toaster"
+import AppProvider from "@/app/AppProvider";
+import { cookies } from "next/headers";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -22,6 +24,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = cookies()
+  const sessionToken = cookieStore.get('sessionToken')
+  console.log('cookieStore',);
+  
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -36,12 +42,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <div className="container sm:mx-auto">
-            {children}
-
-          </div>
-          <Toaster />
+          <AppProvider initialSessionToken = {sessionToken?.value}>
+            <Header />
+            <div className="container sm:mx-auto">{children}</div>
+            <Toaster />
+          </AppProvider>
         </ThemeProvider>
       </body>
     </html>
