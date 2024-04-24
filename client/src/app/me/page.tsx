@@ -5,6 +5,8 @@ import Profile from '@/app/me/Profile'
 export default async function MeProfile() {
     const cookieStore = cookies()
     const seesionToken = cookieStore.get('sessionToken')   
+    console.log('seesionToken',seesionToken?.value);
+    
     const result = await fetch(
         `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/account/me`,
         {
@@ -30,7 +32,7 @@ export default async function MeProfile() {
   return (
     <div>
       Hello bruh <b>{result.payload.data?.name}  !! </b> 
-      <Profile />
+      {/* <Profile /> */}
     </div>
   )
 }

@@ -39,6 +39,7 @@ export function LoginForm() {
     // ✅ This will be type-safe and validated.
     
     try{
+      // 1
       const result = await fetch(
         `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`,
         {
@@ -60,29 +61,35 @@ export function LoginForm() {
         return data;
         
       })
+      // 2
       toast({
         title: result.payload.message,
         description: result.payload.message,
       });
-      const resultFromNextServer = await fetch('/api/auth', {
-        method: 'POST',
-        body: JSON.stringify(result),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(async (res) => {
-        const payload = await res.json()
-        const data = {
-          status : res.status,
-          payload
-        }
-        if (!res.ok) {
-          throw data
-        } 
-        return data;
-        
-      })
-      setSessionToken(resultFromNextServer.payload.data.token)
+      // 3
+      // const resultFromNextServer = await fetch(
+      //   "/api/auth", {
+      //   method: "POST",
+      //   body: JSON.stringify(result),
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      // }).then(async (res) => {
+      //   const payload = await res.json();
+      //   const data = {
+      //     status: res.status,
+      //     payload,
+      //   };
+      //   if (!res.ok) {
+      //     throw data;
+      //   }
+      //   return data;
+      // });
+      // 4
+      console.log('result',result);
+      
+      setSessionToken(result.payload.data.token)
+
     }catch(error: any){
       const errors = error.payload.errors as {
           field: string

@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   const cookieStore = cookies()
   const sessionToken = cookieStore.get('sessionToken')
-  console.log('cookieStore',);
+  console.log("sessionToken",sessionToken?.value);
   
   return (
     <html lang="en" suppressHydrationWarning>

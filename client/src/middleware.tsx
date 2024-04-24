@@ -8,6 +8,8 @@ const authPaths = ["/login", "/register"]
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get("sessionToken")?.value;
+  console.log("sessionToken",sessionToken);
+  
   if (privatePaths.includes(pathname) && !sessionToken) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
