@@ -120,7 +120,7 @@ export default async function authRoutes(fastify: FastifyInstance, options: Fast
         reply
           .setCookie('sessionToken', session.token, {
             path: '/',
-            // httpOnly: true,
+            httpOnly: true,
             secure: true,
             expires: session.expiresAt,
             sameSite: 'none',

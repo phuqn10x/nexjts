@@ -67,24 +67,24 @@ export function LoginForm() {
         description: result.payload.message,
       });
       // 3
-      // const resultFromNextServer = await fetch(
-      //   "/api/auth", {
-      //   method: "POST",
-      //   body: JSON.stringify(result),
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // }).then(async (res) => {
-      //   const payload = await res.json();
-      //   const data = {
-      //     status: res.status,
-      //     payload,
-      //   };
-      //   if (!res.ok) {
-      //     throw data;
-      //   }
-      //   return data;
-      // });
+      const resultFromNextServer = await fetch(
+        "/api/auth", {
+        method: "POST",
+        body: JSON.stringify(result),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }).then(async (res) => {
+        const payload = await res.json();
+        const data = {
+          status: res.status,
+          payload,
+        };
+        if (!res.ok) {
+          throw data;
+        }
+        return data;
+      });
       // 4
       console.log('result',result);
       
